@@ -1,11 +1,11 @@
 ---
-- hosts: 127.0.0.1
-  vars_files:
-    - vars/druid.yml
-  tasks:
-    - name: Preflight check AWS_KEYS
-      assert:
-        that: druid_s3_accessKey != '<AWS_ACCESS_KEY>' and druid_s3_secretKey != '<AWS_SECRET_KEY>'
+#- hosts: 127.0.0.1
+#  vars_files:
+#    - vars/druid.yml
+#  tasks:
+#    - name: Preflight check AWS_KEYS
+#      assert:
+#        that: druid_s3_accessKey != '<AWS_ACCESS_KEY>' and druid_s3_secretKey != '<AWS_SECRET_KEY>'
 
 - hosts: all
   become: yes
@@ -13,9 +13,11 @@
   vars_files:
     - vars/druid.yml
   roles:
+    - preflight
     - java
+    - cyberreason
 
-- hosts: tag_metrics_master
+- hosts: cluster_druid_metadata_db
   vars_files:
     - vars/metrics.yml
   become: yes
@@ -73,7 +75,7 @@
         - kapacitor
         - chronograf
 
-- hosts: tag_postgres_master
+- hosts: cluster_druid_metadata_db
   vars_files:
     - vars/druid.yml
   become: yes
@@ -81,14 +83,14 @@
     - postgres-common
     - { role: postgres-druid, become_user: postgres }
 
-- hosts: tag_zookeeper_master:tag_zookeeper_slave
+- hosts: cluster_druid_zookeeper
   vars_files:
     - vars/druid.yml
   become: yes
   roles:
     - zookeeper
 
-- hosts: tag_Name_druid_cluster_node:!tag_postgres_master:!tag_metrics_master
+- hosts: cluster_druid:cluster_druid_zookeeper
   vars_files:
     - vars/druid.yml
   become: yes
@@ -96,28 +98,28 @@
     - supervisor
     - druid-common
 
-- hosts: tag_druid_historical
+- hosts: druid-historical:cluster_druid_zookeeper
   vars_files:
     - vars/druid.yml
   become: yes
   roles:
     - historical
-      
-- hosts: tag_druid_coordinator
+
+- hosts: druid-coordinator
   vars_files:
     - vars/druid.yml
   become: yes
   roles:
     - coordinator
-   
-- hosts: tag_druid_broker
+
+- hosts: druid-broker
   vars_files:
     - vars/druid.yml
   become: yes
   roles:
     - broker
 
-- hosts: tag_druid_middlemanager
+- hosts: druid-middlemanager
   vars_files:
     - vars/druid.yml
   become: yes

@@ -1,47 +1,80 @@
+- name: Check if druid base directory exists.
+  stat:
+    path: "{{ druid_base_dir }}"
+  register: d_base_dir
+
+- name: Create druid base directory.
+  file:
+    mode: 0755
+    state: directory
+    owner: "{{ default_user }}"
+    group: "{{ default_group }}"
+    path: "{{ druid_base_dir }}"
+  when: d_base_dir.stat.exists == False
+
+- name: Check if druid has already been downloaded and unpacked
+  stat:
+    path: "{{ installation_dir }}"
+  register: d_installation_dir
+
 - name: Download druid
   # Always call it druid-{{ druid_version }}-bin.tar.gz no matter if it is the real dist file or a gitlab artifact (in zip)
   # the unarchive module handles it nicely
-  get_url: url={{ druid_download_url }}  dest=/tmp/druid-{{ druid_version }}-bin.tar.gz force=no
+  get_url:
+    force: no
+    dest: "{{ package_temp_dir }}"
+    url: "{{ druid_download_url }}"
+  when: d_installation_dir.stat.exists == False
 
-- name: Create druid group
-  group:
-    name: "{{ druid_run_user }}"
-    state: present
+- name: Unarchive druid
+  unarchive:
+    copy: no
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    dest: "{{ druid_base_dir }}"
+    src: "{{ package_temp_dir }}"
+  when: d_installation_dir.stat.exists == False
 
-- name: Create druid user with group
-  user:
-    name: "{{ druid_run_user }}"
-    comment: "Druid run user"
-    group: "{{ druid_run_user }}"
-
-- name: ensure druid used directories exists
-  file: path={{ item }} state=directory owner=druid group=druid mode=0775
-  with_items:
-    - "{{ druid_base_dir }}"
-    - /var/log/druid
-    - "{{ segment_cache_location }}"
-    - "{{ druid_indexer_task_baseDir }}"
-    - "{{ druid_indexer_task_hadoopWorkingPath }}"
-
-- name: unarchive druid
-  unarchive: src="/tmp/druid-{{ druid_version }}-bin.tar.gz" dest={{ druid_base_dir }} copy=no owner=druid group=druid
+- name: Make sure druid is owned by druid_user
+  file:
+    mode: 0775
+    recurse: yes
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    dest: "{{ installation_dir }}"
+  when: d_installation_dir.stat.exists == False
 
 - name: Create symlink to druid version dir
-  file: src="{{ druid_base_dir }}/druid-{{ druid_version }}" dest={{ druid_base_dir }}/druid state=link owner=druid group=druid mode=0775
+  file:
+    mode: 0775
+    state: link
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: "{{ installation_dir }}"
+    dest: "{{ druid_base_dir }}/druid"
+  when: d_installation_dir.stat.exists == False
 
-- name: Copy graphite emitter to tmp folder
-  copy:
-    src: "{{ graphite_emitter_archive }}"
-    dest: "{{ druid_tmpdir }}/graphite-emitter.tar.gz"
-
-- name: Unarchive graphite emitter to extension folder
-  unarchive:
-    src: "{{ druid_tmpdir }}/graphite-emitter.tar.gz"
-    dest: "{{ druid_extensions_dir }}"
-    remote_src: yes
+- name: Ensure druid used directories exists
+  file:
+    mode: 0775
+    state: directory
+    path: "{{ item }}"
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+  with_items:
+    - "{{ log_dir }}"
+    - "{{ extensions_dir }}"
+    - "{{ segment_cache_location }}"
+    - "{{ indexer_task_baseDir }}"
+#    - "{{ druid_indexer_task_hadoopWorkingPath }}"
 
 - name: ensure druid config directories exists
-  file: path={{ druid_conf_dir }}/{{ item }} state=directory owner=druid group=druid mode=0775
+  file:
+    mode: 0775
+    state: directory
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    path: "{{ conf_dir }}/{{ item }}"
   with_items:
     - _common
     - broker
@@ -49,38 +82,101 @@
     - coordinator_parts
     - historical
     - indexing
+  when: d_installation_dir.stat.exists == False
+
+- name: Copy graphite emitter to tmp folder
+  copy:
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: "{{ graphite_emitter_archive }}"
+    dest: "{{ druid_tmpdir }}/graphite-emitter.tar.gz"
+  when: d_installation_dir.stat.exists == False
+
+- name: Unarchive graphite emitter to extension folder
+  unarchive:
+    copy: no
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: "{{ druid_tmpdir }}/graphite-emitter.tar.gz"
+    dest: "{{ extensions_dir }}"
+  when: d_installation_dir.stat.exists == False
 
 - name: Copy metrics whiteList file
   copy:
+    mode: 0664
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
     src: resources/whiteListMap.json
-    dest: "{{ metrics_white_list_location }}"
+    dest: "{{ conf_dir }}"
 
-- name: copy over common runtime.properties
-  template: src=_common/common.runtime.properties dest={{ druid_conf_dir }}/_common/common.runtime.properties owner=druid group=druid mode=0664
+- name: Copy over common runtime.properties
+  template:
+    mode: 0664
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: _common/common.runtime.properties
+    dest: "{{ conf_dir }}/_common/common.runtime.properties"
 
-- name: copy over common logging config
-  template: src=_common/log4j2.xml dest={{ druid_conf_dir }}/_common/log4j2.xml owner=druid group=druid mode=0664
+- name: Copy over common logging config
+  template:
+    mode: 0664
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: _common/log4j2.xml
+    dest: "{{ conf_dir }}/_common/log4j2.xml"
 
-- name: copy over other runtime.properties
-  template: src={{ item }}/runtime.properties dest={{ druid_conf_dir }}/{{ item }}/runtime.properties owner=druid group=druid mode=0664
+- name: Copy over other runtime.properties
+  template:
+    mode: 0664
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: "{{ item }}/runtime.properties"
+    dest: "{{ conf_dir }}/{{ item }}/runtime.properties"
   with_items:
     - broker
     - historical
     - coordinator_parts
     - indexing
 
-- name: copy over extra coordinator runtime.properties
-  template: src={{ item }}/runtime.properties dest={{ druid_conf_dir }}/coordinator_parts/{{ item }}.runtime.properties owner=druid group=druid mode=0664
+- name: Copy over extra coordinator runtime.properties
+  template:
+    mode: 0664
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: "{{ item }}/runtime.properties"
+    dest: "{{ conf_dir }}/coordinator_parts/{{ item }}.runtime.properties"
   with_items:
     - indexing
 
 - name: Merge coordinator runtime properties parts
   assemble:
-    src: "{{ druid_conf_dir }}/coordinator_parts"
-    dest: "{{ druid_conf_dir }}/coordinator/runtime.properties"
-    owner: druid
-    group: druid
     mode: 0664
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: "{{ conf_dir }}/coordinator_parts"
+    dest: "{{ conf_dir }}/coordinator/runtime.properties"
+
+- name: Create directory for symlink to druid configuration file
+  file:
+    state: directory
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    path: /etc/druid
+
+- name: Create symlink to druid configuration folder
+  file:
+    mode: 0775
+    state: link
+    src: "{{ conf_dir }}"
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    dest: "{{ druid_conf_dir }}"
 
 - name: Get postgres jdbc driver for druid
-  get_url: url={{ druid_db_jdbc_download_url }} dest={{ druid_base_dir }}/druid/lib force=true owner=druid group=druid mode=0664
+  get_url:
+    mode: 0664
+    force: true
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    url: "{{ druid_db_jdbc_download_url }}"
+    dest: "{{ installation_dir }}/lib"

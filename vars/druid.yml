@@ -1,18 +1,41 @@
-druid_version: 0.12.0
-druid_download_url: http://static.druid.io/artifacts/releases/druid-{{ druid_version }}-bin.tar.gz
+#druid version for installation
+druid_version: 0.12.3
+druid_mirror: http://static.druid.io/artifacts/releases
+druid_package_name: druid-{{ druid_version }}
+druid_download_url: "{{ druid_mirror }}/{{ druid_package_name }}-bin.tar.gz"
 
-druid_environment: acc
-druid_root_logger_level: info
-druid_run_user: druid
+#zookeeper version for installation
+zookeeper_version: 3.4.12
+zookeeper_mirror: http://www-eu.apache.org/dist/zookeeper
+zookeeper_package_name: zookeeper-{{ zookeeper_version }}
+zookeeper_download_url: "{{ zookeeper_mirror }}/{{ zookeeper_package_name }}/{{ zookeeper_package_name }}.tar.gz"
 
-druid_db_host: "{{ hostvars[groups['tag_postgres_master'][0]]['ansible_fqdn'] }}"
+#default package installation path
+default_base_dir: /opt/app
+
+#default user for running processes
+default_user: druid
+default_group: druid
+
+#druid metadata database properties.
+druid_db_host: "{{ groups['cluster_druid_metadata_db'] | first }}"
 druid_db_url: jdbc:postgresql://{{ druid_db_host }}/druid
+druid_db_name: druid
 druid_db_user: druid
 druid_db_passwd: driud
 druid_db_jdbc_download_url: https://jdbc.postgresql.org/download/postgresql-42.1.4.jar
-# deep_storage_type: hdfs
-# deep_storage_location: /druid/{{ druid_environment }}/data/datasources
-# deep_storage_log_location: /druid/{{ druid_environment }}/logs/indexing-logs
+
+#zookeeper properties.
+zookeeper_user: "{{ default_user }}"
+zookeeper_group: "{{ default_group }}"
+zookeeper_base_dir: "{{ default_base_dir }}"
+zookeeper_client_port: 2181
+zookeeper_connection_string: "{{ groups['cluster_druid_zookeeper'] | join(':{0},'.format(zookeeper_client_port)) }}:{{ zookeeper_client_port }}"
+
+#druid data deep storage storage properties.
+## deep_storage_type: hdfs
+## deep_storage_location: /druid/{{ druid_environment }}/data/datasources
+## deep_storage_log_location: /druid/{{ druid_environment }}/logs/indexing-logs
 deep_storage_type: s3
 druid_s3_accessKey: <AWS_ACCESS_KEY>
 druid_s3_secretKey: <AWS_SECRET_KEY>
@@ -21,26 +44,14 @@ druid_s3_baseKey: deepstorage
 deep_storage_location: "{{ druid_s3_bucketname }}/data"
 deep_storage_log_location: "{{ druid_s3_bucketname }}/logs"
 
-druid_zookeeper_hosts:
-  - zk_host: "{{ hostvars[groups['tag_zookeeper_master'][0]]['ansible_fqdn'] }}"
-    zk_id: 0
-    zk_ports: "2888:3888"
-  # - zk_host: "{{ hostvars[groups['tag_zookeeper_slave'][0]]['ansible_fqdn'] }}"
-  #   zk_id: 1
-  #   zk_ports: "2888:3888"
+#druid general properties.
+druid_environment: acc
+druid_root_logger_level: info
+druid_user: "{{ default_user }}"
+druid_group: "{{ default_group }}"
+druid_run_user: "{{ druid_user }}"
 
-zk_client_port: 2181
-zookeeper: "{{ druid_zookeeper_hosts | map(attribute='zk_host') | join(':{0},'.format(zk_client_port)) }}:{{ zk_client_port }}"
-
-druid_conf_dir: /etc/druid/conf
-druid_base_dir: /opt/app
+#druid directory properties.
 druid_tmpdir: /tmp
-druid_indexer_task_baseDir: "{{ druid_tmpdir }}/druid/task"
-segment_cache_location: "{{ druid_base_dir }}/druid-data"
-druid_extensions_dir: "{{ druid_base_dir}}/druid/extensions"
-druid_indexer_task_hadoopWorkingPath: "/druid/{{ druid_environment }}/druid-indexing"
-
-graphite_emitter_archive: resources/graphite-emitter-extensions-{{ druid_version }}.tar.gz
-metrics_host: "{{ hostvars[groups['tag_metrics_master'][0]]['ansible_fqdn'] }}"
-metrics_port: 2003
-metrics_white_list_location: "{{druid_conf_dir}}/whiteListMap.json"
+druid_base_dir: "{{ default_base_dir }}"
+druid_conf_dir: /etc/druid/conf

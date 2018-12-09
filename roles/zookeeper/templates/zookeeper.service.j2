@@ -1,0 +1,18 @@
+[Unit]
+Description=Apache Zookeeper
+Documentation=http://zookeeper.apache.org
+Requires=network.target
+After=network.targe
+
+[Service]
+Type=forking
+EnvironmentFile=/etc/default/zookeeper
+ExecStart={{ installation_dir }}/bin/zkServer.sh start
+ExecStop={{ installation_dir }}/bin/zkServer.sh stop
+Restart=on-failure
+User={{ zookeeper_user }}
+Group={{ zookeeper_group }}
+
+[Install]
+WantedBy=multi-user.target
+Alias=zookeeper.service

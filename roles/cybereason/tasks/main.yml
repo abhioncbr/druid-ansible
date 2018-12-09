@@ -1,0 +1,51 @@
+---
+  - name: Copy the cyber-reason debian package to remote system
+    copy:
+      src: cybereason.x86_64_paytm.deb
+      dest: /tmp/cybereason.x86_64_paytm.deb
+    when: ansible_distribution == "Ubuntu"
+
+
+  - name: Install The deb package
+    apt:
+      deb: /tmp/cybereason.x86_64_paytm.deb
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Verify if the sensor was installed successfully
+    shell: ps aux | grep -v grep | grep -i cybereason
+    register: my_package_check_deb
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Print the output for checking if the sensor was installed
+    debug:
+      msg: "{{ my_package_check_deb.stdout }}"
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Copy the cyber-reason rpm package to remote system
+    copy:
+      src: cybereason-sensor.rpm
+      dest: /tmp/cybereason-sensor.rpm
+    when: ansible_distribution == "CentOS" or ansible_distribution == "Amazon"
+
+  - name: Install the rpm
+    yum:
+      name: /tmp/cybereason-sensor.rpm
+      state: present
+    when: ansible_distribution == "CentOS" or ansible_distribution == "Amazon"
+
+  - name: Verify if the sensor was installed successfully
+    shell: ps aux | grep -v grep | grep -i cybereason
+    register: my_package_check_yum
+    when: ansible_distribution == "CentOS" or ansible_distribution == "Amazon"
+
+  - name: Print the output for checking if the sensor was installed
+    debug:
+      msg: "{{ my_package_check_yum.stdout }}"
+    when: ansible_distribution == "CentOS" or ansible_distribution == "Amazon"
+
+  - name: Check service cybereason-sensor is running on the hosts
+    service:
+      name: cybereason-sensor
+      state: started
+      enabled: yes
+

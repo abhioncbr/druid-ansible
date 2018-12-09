@@ -1,39 +1,129 @@
-- name: install yum repo with zookeeper
-  yum: 
-    name: https://archive.cloudera.com/cdh5/one-click-install/redhat/7/x86_64/cloudera-cdh-5-0.x86_64.rpm
-    state: present
+- name: Check if apache-zooKeeper base directory exists.
+  stat:
+    path: "{{ zookeeper_base_dir }}"
+  register: zk_base_dir
 
-- name: install zookeeper
-  yum:
-    name: zookeeper-server
-    state: present
+- name: Create apache-zookeeper base directory.
+  file:
+    mode: 0755
+    state: directory
+    owner: "{{ default_user }}"
+    group: "{{ default_group }}"
+    path: "{{ zookeeper_base_dir }}"
+  when: zk_base_dir.stat.exists == False
 
-- name: Check if Zookeeper has been initialized
-  stat: path={{ zookeeper_data_dir }}/myid
-  register: zookeeper_id_file
+- name: Check if apache-zookeeper has already been downloaded and unpacked.
+  stat:
+    path: "{{ installation_dir }}"
+  register: zk_installation_dir
 
-- name: Determine zookeeper id 
-  set_fact: 
-    zookeeper_myid: "{{ druid_zookeeper_hosts | selectattr('zk_host',  'match', '^'+ansible_fqdn+'$') | map(attribute='zk_id') | list | first }}"
+- name: Download apache-zookeeper
+  get_url:
+    force: no
+    dest: "{{ package_temp_dir }}"
+    url: "{{ zookeeper_download_url }}"
+  when: zk_installation_dir.stat.exists == False
 
-- name: Initialize Zookeeper
-  command: "service zookeeper-server init --force --myid={{ zookeeper_myid }}"
-  when: not zookeeper_id_file.stat.exists
+- name: Unarchive apache-zookeeper
+  unarchive:
+    copy: no
+    src: "{{ package_temp_dir }}"
+    owner: "{{ zookeeper_user }}"
+    group: "{{ zookeeper_group }}"
+    dest: "{{ zookeeper_base_dir }}"
+  when: zk_installation_dir.stat.exists == False
+
+- name: Create symlink to apache-zookeeper version dir
+  file:
+    mode: 0775
+    state: link
+    owner: "{{ zookeeper_user }}"
+    group: "{{ zookeeper_group }}"
+    src: "{{ installation_dir }}"
+    dest: "{{ zookeeper_base_dir }}/zookeeper"
+
+- name: Create directory for snapshot files and myid file
+  file:
+    state: directory
+    path: "{{ data_dir }}"
+    owner: "{{ zookeeper_user }}"
+    group: "{{ zookeeper_group }}"
+
+- name: Create directory for transaction log files
+  file:
+    state: directory
+    path: "{{ data_log_dir }}"
+    owner: "{{ zookeeper_user }}"
+    group: "{{ zookeeper_group }}"
+
+- name: Create zookeeper log directory
+  file:
+    state: directory
+    path: "{{ log_dir }}"
+    owner: "{{ zookeeper_user }}"
+    group: "{{ zookeeper_group }}"
+
+
+# /usr/share/zookeeper/conf/zoo.cfg is the default file ZooKeeper will use when starting
+- name: Template configuration file to zoo.cfg
+  template:
+    src: zoo.cfg.j2
+    dest: "{{ conf_dir }}/zoo.cfg"
+    group: "{{ zookeeper_group }}"
+    owner: "{{ zookeeper_user }}"
   notify:
-    - Restart Zookeeper
+    - Restart ZooKeeper service
 
-- name: Configure Zookeeper
-  template: src=zoo.cfg.j2 dest={{ zookeeper_conf_dir }}/zoo.cfg
+- name: Create directory for symlink to ZooKeeper configuration file
+  file:
+    path: /etc/zookeeper
+    state: directory
+    group: "{{ zookeeper_group }}"
+    owner: "{{ zookeeper_user }}"
+
+- name: Create symlink to ZooKeeper configuration file
+  file:
+    state: link
+    dest: /etc/zookeeper/conf
+    src: "{{ conf_dir }}"
+    owner: "{{ zookeeper_user }}"
+    group: "{{ zookeeper_group }}"
+
+- name: Template myid to {{ zookeeper_data_dir}}/myid
+  template:
+    src: myid.j2
+    dest: "{{ data_dir }}/myid"
+    group: "{{ zookeeper_group }}"
+    owner: "{{ zookeeper_user }}"
+
+- name: Template /etc/default
+  template:
+    src: default.j2
+    owner: "{{ zookeeper_user }}"
+    group: "{{ zookeeper_group }}"
+    dest: '/etc/default/zookeeper'
   notify:
-    - Restart Zookeeper
+    - Restart ZooKeeper service
 
-- name: Configure SERVER_JVMFLAGS
-  lineinfile: dest=/etc/default/zookeeper
-              regexp="SERVER_JVMFLAGS"
-              line="export SERVER_JVMFLAGS=\"{{ zookeeper_server_jvmflags }}\""
+# Uncomment the log4j.properties line for setting the maximum number of logs to rollover and keep
+- name: Set maximum log rollover history
+  replace:
+    dest: '{{ conf_dir }}/log4j.properties'
+    regexp: '^#log4j.appender.ROLLINGFILE.MaxBackupIndex'
+    replace: 'log4j.appender.ROLLINGFILE.MaxBackupIndex'
   notify:
-    - Restart Zookeeper
+    - Restart ZooKeeper service
 
-- name: Enable and start the Zookeeper service
-  service: name=zookeeper-server enabled=yes state=started
+- name: Template ZooKeeper systemd service file
+  template:
+    src: zookeeper.service.j2
+    dest: /usr/lib/systemd/system/zookeeper.service
+  notify:
+    - Reload systemd
+    - Restart ZooKeeper service
 
+- name: Start the ZooKeeper service
+  service:
+    enabled: yes
+    state: started
+    name: zookeeper.service

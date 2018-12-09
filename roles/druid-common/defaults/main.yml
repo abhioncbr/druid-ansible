@@ -1,5 +1,19 @@
 ---
 # defaults file for ansible-common
+log_dir: /var/log/druid
+conf_dir: "{{ installation_dir }}/conf"
+extensions_dir: "{{ installation_dir }}/extensions"
+package_temp_dir: "/tmp/{{ druid_package_name }}-bin.tar.gz"
+installation_dir: "{{ druid_base_dir }}/{{ druid_package_name}}"
 
+#druid configurations directory
+data_base_dir: "{{ default_base_dir }}/druid_data"
+segment_cache_location: "{{ data_base_dir }}/data"
+indexer_task_baseDir: "{{ data_base_dir }}/task"
+#druid_indexer_task_hadoopWorkingPath: "/druid/{{ druid_environment }}/druid-indexing"
 
-
+#druid metrics properties.
+metrics_port: 2003
+metrics_host: "{{ groups['cluster_druid_metadata_db'] | first }}"
+metrics_white_list_location: "{{ conf_dir }}/whiteListMap.json"
+graphite_emitter_archive: resources/graphite-emitter-extensions-{{ druid_version }}.tar.gz

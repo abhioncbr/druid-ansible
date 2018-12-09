@@ -3,7 +3,7 @@
     name: "{{ item }}"
     state: present
   with_items:
-    - postgresql-server 
+    - postgresql-server
     - postgresql-contrib
     - python-psycopg2
 

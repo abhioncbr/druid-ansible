@@ -1,8 +1,18 @@
----
-zookeeper_conf_dir: "/etc/zookeeper/conf"
-zookeeper_data_dir: "/var/lib/zookeeper"
-zookeeper_max_client_connections: 50
-zookeeper_tick_time: 2000
-zookeeper_initial_limit: 100
-zookeeper_sync_limit: 5
-zookeeper_server_jvmflags: ""
+#general configurations for zookeeper setup
+log_dir: /var/log/zookeeper
+data_dir: /var/lib/zookeeper
+data_log_dir: /var/lib/zookeeper
+conf_dir: "{{ installation_dir }}/conf"
+package_temp_dir: "/tmp/{{ zookeeper_package_name }}.tar.gz"
+installation_dir: "{{ zookeeper_base_dir }}/{{ zookeeper_package_name}}"
+
+#zookeeper environment variables
+environment: {}
+
+#zookeeper configuration variables
+tick_time: 2000
+init_limit: 100
+sync_limit: 5
+leader_port: 2888
+election_port: 3888
+max_client_cnxns: 50

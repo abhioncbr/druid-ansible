@@ -1,3 +1,8 @@
 ---
-- name: Restart Zookeeper
-  service: name=zookeeper-server state=restarted
+- name: Reload systemd
+  command: systemctl daemon-reload
+
+- name: Restart ZooKeeper service
+  service:
+    name: zookeeper.service
+    state: restarted

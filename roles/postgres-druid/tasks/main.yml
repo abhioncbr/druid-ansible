@@ -1,5 +1,5 @@
 - name: ensure database is created
-  postgresql_db: name=druid
+  postgresql_db: name={{ druid_db_name }}
 
 - name: ensure user has access to database
   postgresql_user: db=druid name={{ druid_db_user }} password={{ druid_db_passwd }} priv=ALL
