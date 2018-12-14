@@ -14,16 +14,16 @@
     - vars/druid.yml
   roles:
     - preflight
-    - java
-    - cyberreason
+    - commons.java
+    - labs.cybereason
 
 - hosts: cluster_druid_metadata_db
   vars_files:
     - vars/metrics.yml
   become: yes
   roles:
-    - influxdb
-    - grafana
+    - metrics.influxdb
+    - metrics.grafana
 
   post_tasks:
     - name: Install influxdb python module
@@ -80,8 +80,8 @@
     - vars/druid.yml
   become: yes
   roles:
-    - postgres-common
-    - { role: postgres-druid, become_user: postgres }
+    - metadata.postgres-common
+    - { role: metadata.postgres-druid, become_user: postgres }
 
 - hosts: cluster_druid_zookeeper
   vars_files:
@@ -95,35 +95,42 @@
     - vars/druid.yml
   become: yes
   roles:
-    - supervisor
-    - druid-common
+    - commons.supervisor
+    - druid.druid-common
 
 - hosts: druid-historical:cluster_druid_zookeeper
   vars_files:
     - vars/druid.yml
   become: yes
   roles:
-    - historical
+    - druid.historical
 
 - hosts: druid-coordinator
   vars_files:
     - vars/druid.yml
   become: yes
   roles:
-    - coordinator
+    - druid.coordinator
+
+- hosts: druid-overlord
+  vars_files:
+    - vars/druid.yml
+  become: yes
+  roles:
+    - druid.overlord
 
 - hosts: druid-broker
   vars_files:
     - vars/druid.yml
   become: yes
   roles:
-    - broker
+    - druid.broker
 
 - hosts: druid-middlemanager
   vars_files:
     - vars/druid.yml
   become: yes
   roles:
-    - historical
-    - middle-manager
+    - druid.historical
+    - druid.middle-manager
 

@@ -18,12 +18,13 @@ locals {
   }
 }
 
-resource "aws_instance" "druid-master" {
-  count         = "${var.druid_master_node_count}"
+resource "aws_instance" "druid-overlord" {
+  count         = "${var.druid_overlord_node_count}"
   ami           = "${data.aws_ami.centos.id}"
   instance_type = "${var.druid_default_instance_type}"
   subnet_id     = "${aws_subnet.druid-automation.id}"
   key_name      = "${var.key_name}"
+  iam_instance_profile = "${aws_iam_instance_profile.druid.name}"
 
   vpc_security_group_ids = [
     "${aws_security_group.adelaide-druid-access-tf.id}",
@@ -39,8 +40,8 @@ resource "aws_instance" "druid-master" {
     local.common_tags,
     local.druid_tags,
     map(
-      "Name", "druid-master-${count.index}",
-      "Druid-Master-Stack", "${var.stack}"
+      "Name", "druid-overlord-${count.index}",
+      "Druid-Overlord-Stack", "${var.stack}"
     )
   )}"
 }
@@ -51,6 +52,7 @@ resource "aws_instance" "druid-broker" {
   instance_type = "${var.druid_default_instance_type}"
   subnet_id     = "${aws_subnet.druid-automation.id}"
   key_name      = "${var.key_name}"
+  iam_instance_profile = "${aws_iam_instance_profile.druid.name}"
 
   vpc_security_group_ids = [
     "${aws_security_group.adelaide-druid-access-tf.id}",
@@ -78,6 +80,7 @@ resource "aws_instance" "druid-coordinator" {
   instance_type = "${var.druid_default_instance_type}"
   subnet_id     = "${aws_subnet.druid-automation.id}"
   key_name      = "${var.key_name}"
+  iam_instance_profile = "${aws_iam_instance_profile.druid.name}"
 
   vpc_security_group_ids = [
     "${aws_security_group.adelaide-druid-access-tf.id}",
@@ -105,6 +108,7 @@ resource "aws_instance" "druid-middlemanager" {
   instance_type = "${var.druid_default_instance_type}"
   subnet_id     = "${aws_subnet.druid-automation.id}"
   key_name      = "${var.key_name}"
+  iam_instance_profile = "${aws_iam_instance_profile.druid.name}"
 
   vpc_security_group_ids = [
     "${aws_security_group.adelaide-druid-access-tf.id}",
@@ -132,6 +136,7 @@ resource "aws_instance" "druid-historical" {
   instance_type = "${var.druid_default_instance_type}"
   subnet_id     = "${aws_subnet.druid-automation.id}"
   key_name      = "${var.key_name}"
+  iam_instance_profile = "${aws_iam_instance_profile.druid.name}"
 
   vpc_security_group_ids = [
     "${aws_security_group.adelaide-druid-access-tf.id}",
@@ -159,6 +164,7 @@ resource "aws_instance" "zookeeper" {
   instance_type = "${var.druid_default_instance_type}"
   subnet_id     = "${aws_subnet.druid-automation.id}"
   key_name      = "${var.key_name}"
+  iam_instance_profile = "${aws_iam_instance_profile.druid.name}"
 
   vpc_security_group_ids = [
     "${aws_security_group.adelaide-druid-access-tf.id}",
@@ -187,6 +193,7 @@ resource "aws_instance" "postgres" {
   instance_type = "${var.druid_default_instance_type}"
   subnet_id     = "${aws_subnet.druid-automation.id}"
   key_name      = "${var.key_name}"
+  iam_instance_profile = "${aws_iam_instance_profile.druid.name}"
 
   vpc_security_group_ids = [
     "${aws_security_group.adelaide-druid-access-tf.id}",

@@ -1,4 +1,4 @@
-druid_master_node_count = "1"
+druid_overlord_node_count = "1"
 
 druid_broker_node_count = "1"
 

@@ -9,5 +9,4 @@ URL="http://${COORDINATOR_IP}:8081/druid/indexer/v1/task"
 curl -L -H'Content-Type: application/json' -XPOST --data-binary @${DIR}/index-data.json $URL
 
 #URL="http://10.0.2.:8081/druid/indexer/v1/task"
-#curl -L -H'Content-Type: application/json' -XPOST --data-binary index-data.json URL="http://10.0.2
-# .:8081/druid/indexer/v1/task"
+#curl -L -H'Content-Type: application/json' -XPOST --data-binary index-data.json URL="http://10.0.2.175:8081/druid/indexer/v1/task"

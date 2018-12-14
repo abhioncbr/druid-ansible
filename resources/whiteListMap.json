@@ -8,9 +8,6 @@
   "jvm/mem/committed": [
     "memKind"
   ],
-  "jvm/gc/count": [
-    "gcName"
-  ],
   "jvm/gc/time": [
     "gcName"
   ],
@@ -38,9 +35,6 @@
   "ingest/rows/output": [],
   "jvm/gc": [],
   "jvm/mem": [],
-  "query/success/count": [],
-  "query/failed/count": [],
-  "query/interrupted/count": [],
   "query/cpu/time": [
     "dataSource",
     "type"

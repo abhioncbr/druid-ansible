@@ -1,0 +1,9 @@
+- name: copy middlemanager supervisord config
+  template:
+    src: supervisord.conf
+    dest: /etc/supervisor.d/overlord.conf
+
+- name: start overlord
+  supervisorctl:
+    name: overlord
+    state: restarted

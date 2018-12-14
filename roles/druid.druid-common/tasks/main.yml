@@ -74,14 +74,15 @@
     state: directory
     owner: "{{ druid_user }}"
     group: "{{ druid_group }}"
-    path: "{{ conf_dir }}/{{ item }}"
+    path: "{{ conf_dir }}/druid/{{ item }}"
   with_items:
     - _common
     - broker
+    - overlord
+    - historical
+    - middleManager
     - coordinator
     - coordinator_parts
-    - historical
-    - indexing
   when: d_installation_dir.stat.exists == False
 
 - name: Copy graphite emitter to tmp folder
@@ -115,7 +116,7 @@
     owner: "{{ druid_user }}"
     group: "{{ druid_group }}"
     src: _common/common.runtime.properties
-    dest: "{{ conf_dir }}/_common/common.runtime.properties"
+    dest: "{{ conf_dir }}/druid/_common/common.runtime.properties"
 
 - name: Copy over common logging config
   template:
@@ -123,7 +124,7 @@
     owner: "{{ druid_user }}"
     group: "{{ druid_group }}"
     src: _common/log4j2.xml
-    dest: "{{ conf_dir }}/_common/log4j2.xml"
+    dest: "{{ conf_dir }}/druid/_common/log4j2.xml"
 
 - name: Copy over other runtime.properties
   template:
@@ -131,30 +132,21 @@
     owner: "{{ druid_user }}"
     group: "{{ druid_group }}"
     src: "{{ item }}/runtime.properties"
-    dest: "{{ conf_dir }}/{{ item }}/runtime.properties"
+    dest: "{{ conf_dir }}/druid/{{ item }}/runtime.properties"
   with_items:
     - broker
+    - overlord
     - historical
+    - middleManager
     - coordinator_parts
-    - indexing
-
-- name: Copy over extra coordinator runtime.properties
-  template:
-    mode: 0664
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    src: "{{ item }}/runtime.properties"
-    dest: "{{ conf_dir }}/coordinator_parts/{{ item }}.runtime.properties"
-  with_items:
-    - indexing
 
 - name: Merge coordinator runtime properties parts
   assemble:
     mode: 0664
     owner: "{{ druid_user }}"
     group: "{{ druid_group }}"
-    src: "{{ conf_dir }}/coordinator_parts"
-    dest: "{{ conf_dir }}/coordinator/runtime.properties"
+    src: "{{ conf_dir }}/druid/coordinator_parts"
+    dest: "{{ conf_dir }}/druid/coordinator/runtime.properties"
 
 - name: Create directory for symlink to druid configuration file
   file:

@@ -1,5 +1,5 @@
-#druid master node machine count. [Default value: 1]
-variable "druid_master_node_count" {}
+#druid overlord node machine count. [Default value: 1]
+variable "druid_overlord_node_count" {}
 
 #druid broker node machine count. [Default value: 1]
 variable "druid_broker_node_count" {}
