@@ -118,6 +118,14 @@
     src: _common/common.runtime.properties
     dest: "{{ conf_dir }}/druid/_common/common.runtime.properties"
 
+- name: Copy over common jets3t.properties
+  template:
+    mode: 0664
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: _common/jets3t.properties
+    dest: "{{ conf_dir }}/druid/_common/jets3t.properties"
+
 - name: Copy over common logging config
   template:
     mode: 0664
