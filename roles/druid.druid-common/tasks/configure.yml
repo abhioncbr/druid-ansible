@@ -1,0 +1,84 @@
+- name: Ensure druid used directories exists
+  file:
+    mode: 0775
+    state: directory
+    path: "{{ item }}"
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+  with_items:
+    - "{{ log_dir }}"
+    - "{{ extensions_dir }}"
+    - "{{ segment_cache_location }}"
+    - "{{ indexer_task_baseDir }}"
+#   - "{{ druid_indexer_task_hadoopWorkingPath }}"
+
+- name: Copy over common runtime.properties
+  template:
+    mode: 0664
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: _common/common.runtime.properties
+    dest: "{{ conf_dir }}/druid/_common/common.runtime.properties"
+
+- name: Copy over common jets3t.properties
+  template:
+    mode: 0664
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: _common/jets3t.properties
+    dest: "{{ conf_dir }}/druid/_common/jets3t.properties"
+
+- name: Copy over common logging config
+  template:
+    mode: 0664
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: _common/log4j2.xml
+    dest: "{{ conf_dir }}/druid/_common/log4j2.xml"
+
+- name: Copy over other runtime.properties
+  template:
+    mode: 0664
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: "{{ item }}/runtime.properties"
+    dest: "{{ conf_dir }}/druid/{{ item }}/runtime.properties"
+  with_items:
+    - broker
+    - overlord
+    - historical
+    - middleManager
+    - coordinator_parts
+
+- name: Merge coordinator runtime properties parts
+  assemble:
+    mode: 0664
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: "{{ conf_dir }}/druid/coordinator_parts"
+    dest: "{{ conf_dir }}/druid/coordinator/runtime.properties"
+
+- name: Create directory for symlink to druid configuration file
+  file:
+    state: directory
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    path: /etc/druid
+
+- name: Create symlink to druid configuration folder
+  file:
+    mode: 0775
+    state: link
+    src: "{{ conf_dir }}"
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    dest: "{{ druid_conf_dir }}"
+
+- name: Get postgres jdbc driver for druid
+  get_url:
+    mode: 0664
+    force: true
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    url: "{{ druid_db_jdbc_download_url }}"
+    dest: "{{ installation_dir }}/lib"

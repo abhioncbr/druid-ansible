@@ -98,13 +98,7 @@
     - commons.supervisor
     - druid.druid-common
 
-- hosts: druid-historical:cluster_druid_zookeeper
-  vars_files:
-    - vars/druid.yml
-  become: yes
-  roles:
-    - druid.historical
-
+## Druid Master server ##
 - hosts: druid-coordinator
   vars_files:
     - vars/druid.yml
@@ -119,12 +113,21 @@
   roles:
     - druid.overlord
 
+## Druid Query server ##
 - hosts: druid-broker
   vars_files:
     - vars/druid.yml
   become: yes
   roles:
     - druid.broker
+
+## Druid Data server ##
+- hosts: druid-historical:cluster_druid_zookeeper
+  vars_files:
+    - vars/druid.yml
+  become: yes
+  roles:
+    - druid.historical
 
 - hosts: druid-middlemanager
   vars_files:
