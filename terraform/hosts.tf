@@ -18,8 +18,8 @@ locals {
   }
 }
 
-resource "aws_instance" "druid-overlord" {
-  count         = "${var.druid_overlord_node_count}"
+resource "aws_instance" "druid-master" {
+  count         = "${var.druid_master_node_count}"
   ami           = "${data.aws_ami.centos.id}"
   instance_type = "${var.druid_default_instance_type}"
   subnet_id     = "${aws_subnet.druid-automation.id}"
@@ -40,14 +40,14 @@ resource "aws_instance" "druid-overlord" {
     local.common_tags,
     local.druid_tags,
     map(
-      "Name", "druid-overlord-${count.index}",
-      "Druid-Overlord-Stack", "${var.stack}"
+      "Name", "druid-master-${count.index}",
+      "Druid-Master-Stack", "${var.stack}"
     )
   )}"
 }
 
-resource "aws_instance" "druid-broker" {
-  count         = "${var.druid_broker_node_count}"
+resource "aws_instance" "druid-query" {
+  count         = "${var.druid_query_node_count}"
   ami           = "${data.aws_ami.centos.id}"
   instance_type = "${var.druid_default_instance_type}"
   subnet_id     = "${aws_subnet.druid-automation.id}"
@@ -68,14 +68,14 @@ resource "aws_instance" "druid-broker" {
     local.common_tags,
     local.druid_tags,
     map(
-      "Name", "druid-broker-${count.index}",
-      "Druid-Broker-Stack", "${var.stack}"
+      "Name", "druid-query-${count.index}",
+      "Druid-Query-Stack", "${var.stack}"
     )
   )}"
 }
 
-resource "aws_instance" "druid-coordinator" {
-  count         = "${var.druid_coordinator_node_count}"
+resource "aws_instance" "druid-data" {
+  count         = "${var.druid_data_node_count}"
   ami           = "${data.aws_ami.centos.id}"
   instance_type = "${var.druid_default_instance_type}"
   subnet_id     = "${aws_subnet.druid-automation.id}"
@@ -96,64 +96,8 @@ resource "aws_instance" "druid-coordinator" {
     local.common_tags,
     local.druid_tags,
     map(
-      "Name", "druid-coordinator-${count.index}",
-      "Druid-Coordinator-Stack", "${var.stack}"
-    )
-  )}"
-}
-
-resource "aws_instance" "druid-middlemanager" {
-  count         = "${var.druid_middlemanager_node_count}"
-  ami           = "${data.aws_ami.centos.id}"
-  instance_type = "${var.druid_default_instance_type}"
-  subnet_id     = "${aws_subnet.druid-automation.id}"
-  key_name      = "${var.key_name}"
-  iam_instance_profile = "${aws_iam_instance_profile.druid.name}"
-
-  vpc_security_group_ids = [
-    "${aws_security_group.adelaide-druid-access-tf.id}",
-    "${aws_security_group.druid-tf.id}",
-    "${aws_security_group.all-internal-druid-cidr-tf.id}"
-  ]
-
-  root_block_device {
-    volume_size = "${var.druid_default_root_disk_size}"
-  }
-
-  tags = "${merge(
-    local.common_tags,
-    local.druid_tags,
-    map(
-      "Name", "druid-middlemanager-${count.index}",
-      "Druid-Middlemanager-Stack", "${var.stack}"
-    )
-  )}"
-}
-
-resource "aws_instance" "druid-historical" {
-  count         = "${var.druid_historical_node_count}"
-  ami           = "${data.aws_ami.centos.id}"
-  instance_type = "${var.druid_default_instance_type}"
-  subnet_id     = "${aws_subnet.druid-automation.id}"
-  key_name      = "${var.key_name}"
-  iam_instance_profile = "${aws_iam_instance_profile.druid.name}"
-
-  vpc_security_group_ids = [
-    "${aws_security_group.adelaide-druid-access-tf.id}",
-    "${aws_security_group.druid-tf.id}",
-    "${aws_security_group.all-internal-druid-cidr-tf.id}"
-  ]
-
-  root_block_device {
-    volume_size = "${var.druid_default_root_disk_size}"
-  }
-
-  tags = "${merge(
-    local.common_tags,
-    local.druid_tags,
-    map(
-      "Name", "druid-historical-${count.index}",
-      "Druid-Historical-Stack", "${var.stack}"
+      "Name", "druid-data-${count.index}",
+      "Druid-Data-Stack", "${var.stack}"
     )
   )}"
 }

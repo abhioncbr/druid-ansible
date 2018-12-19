@@ -1,12 +1,8 @@
-druid_overlord_node_count = "1"
+druid_master_node_count = "2"
 
-druid_broker_node_count = "1"
+druid_query_node_count = "3"
 
-druid_coordinator_node_count = "1"
-
-druid_middlemanager_node_count = "1"
-
-druid_historical_node_count = "4"
+druid_data_node_count = "3"
 
 zookeeper_count = "3"
 

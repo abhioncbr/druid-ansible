@@ -1,17 +1,11 @@
-#druid overlord node machine count. [Default value: 1]
-variable "druid_overlord_node_count" {}
+#druid master machines count. [Default value: 2]
+variable "druid_master_node_count" {}
 
-#druid broker node machine count. [Default value: 1]
-variable "druid_broker_node_count" {}
+#druid query machines count. [Default value: 2]
+variable "druid_query_node_count" {}
 
-#druid coordinator node machine count. [Default value: 1]
-variable "druid_coordinator_node_count" {}
-
-#druid middlemanager node machine count. [Default value: 1]
-variable "druid_middlemanager_node_count" {}
-
-#druid historical node machine count. [Default value: 4 + 1(middlemanager machine)]
-variable "druid_historical_node_count" {}
+#druid data machines count. [Default value: 2]
+variable "druid_data_node_count" {}
 
 #zookeeper  machine count. [Deafult Value: 1]
 variable "zookeeper_count" {}

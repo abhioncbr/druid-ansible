@@ -16,5 +16,9 @@ indexer_task_baseDir: "{{ data_base_dir }}/task"
 metrics_port: 2003
 metrics_host: "{{ groups['cluster_druid_metadata_db'] | first }}"
 metrics_white_list_location: "{{ conf_dir }}/whiteListMap.json"
-graphite_emitter_archive: resources/graphite-emitter-extensions-{{ druid_version }}.tar.gz
-druid_parquet_archive: resources/druid-parquet-extensions-{{ druid_version }}.tar.gz
+graphite_emitter_archive: "resources/graphite-emitter-extensions-{{ druid_version }}.tar.gz"
+druid_parquet_archive: "resources/druid-parquet-extensions-{{ druid_version }}.tar.gz"
+druid_hdfs_storage_archive: "resources/druid-hdfs-storage-{{ druid_version }}.tar.gz"
+druid_hadoop_dependencies_archive: "resources/hadoop-dependencies-{{ druid_version }}.tar.gz"
+druid_indexing_hadoop_jar: "druid-indexing-hadoop-{{ druid_version }}.jar"
+druid_indexing_hadoop_jar_path: "resources/{{ druid_indexing_hadoop_jar }}"

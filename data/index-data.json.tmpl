@@ -5,18 +5,14 @@
             "type": "hadoop",
             "inputSpec": {
                 "type": "static",
-                "paths": "s3n://druidbucket/data/wikiticker-2015-09-12-sampled.json.gz"
+                "paths": "s3a://daas-experiment-druid/input_data/wikiticker-2015-09-12-sampled.json.gz"
             }
         },
         "tuningConfig": {
             "type": "hadoop",
             "jobProperties": {
-                "fs.s3.awsAccessKeyId": "<AWS_ACCESS_KEY>",
-                "fs.s3.awsSecretAccessKey": "<AWS_SECRET_KEY>",
-                "fs.s3.impl": "org.apache.hadoop.fs.s3native.NativeS3FileSystem",
-                "fs.s3n.awsAccessKeyId": "<AWS_ACCESS_KEY>",
-                "fs.s3n.awsSecretAccessKey": "<AWS_SECRET_KEY>",
-                "fs.s3n.impl": "org.apache.hadoop.fs.s3native.NativeS3FileSystem",
+                "fs.s3.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+                "fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
                 "io.compression.codecs": "org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.BZip2Codec,org.apache.hadoop.io.compress.SnappyCodec"
             }
         },

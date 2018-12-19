@@ -1,8 +1,8 @@
-druid_overlord_node_count = ""
+druid_master_node_count = ""
 
-druid_broker_node_count = ""
+druid_query_node_count = ""
 
-druid_coordinator_node_count = ""
+druid_data_node_count = ""
 
 druid_middlemanager_node_count = ""
 
