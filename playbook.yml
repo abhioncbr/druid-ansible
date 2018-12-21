@@ -15,7 +15,6 @@
   roles:
     - preflight
     - commons.java
-    - labs.cybereason
 
 - hosts: cluster_druid_metadata_db
   vars_files:

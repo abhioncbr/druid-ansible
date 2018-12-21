@@ -1,6 +1,5 @@
-resource "aws_iam_role" "druid" {
-  name               = "druid-role-tf"
-
+resource "aws_iam_role" "druid-iam" {
+  name = "druid-iam-role-tf"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -40,11 +39,11 @@ EOF
 
 resource "aws_iam_policy_attachment" "druid-full-s3" {
   name       = "druid-full-s3-tf"
-  roles      = ["${aws_iam_role.druid.name}"]
+  roles      = ["${aws_iam_role.druid-iam.name}"]
   policy_arn = "${aws_iam_policy.druid-full-s3-policy.arn}"
 }
 
 resource "aws_iam_instance_profile" "druid" {
   name  = "druid-profile-tf"
-  role = "${aws_iam_role.druid.name}"
+  role = "${aws_iam_role.druid-iam.name}"
 }

@@ -11,7 +11,7 @@ variable "druid_data_node_count" {}
 variable "zookeeper_count" {}
 
 #Postgres  machine count. [Deafult Value: 1]
-variable "postgres_count" {}
+variable "metadata_db_count" {}
 
 #default machine instance type.[Default value: 't2.2xlarge']
 variable "druid_default_instance_type" {}

@@ -22,12 +22,12 @@ resource "aws_instance" "druid-master" {
   count         = "${var.druid_master_node_count}"
   ami           = "${data.aws_ami.centos.id}"
   instance_type = "${var.druid_default_instance_type}"
-  subnet_id     = "${aws_subnet.druid-automation.id}"
+  subnet_id     = "${aws_subnet.druid-subnet-automation.id}"
   key_name      = "${var.key_name}"
   iam_instance_profile = "${aws_iam_instance_profile.druid.name}"
 
   vpc_security_group_ids = [
-    "${aws_security_group.adelaide-druid-access-tf.id}",
+    "${aws_security_group.druid-cluster-access-tf.id}",
     "${aws_security_group.druid-tf.id}",
     "${aws_security_group.all-internal-druid-cidr-tf.id}"
   ]
@@ -50,12 +50,12 @@ resource "aws_instance" "druid-query" {
   count         = "${var.druid_query_node_count}"
   ami           = "${data.aws_ami.centos.id}"
   instance_type = "${var.druid_default_instance_type}"
-  subnet_id     = "${aws_subnet.druid-automation.id}"
+  subnet_id     = "${aws_subnet.druid-subnet-automation.id}"
   key_name      = "${var.key_name}"
   iam_instance_profile = "${aws_iam_instance_profile.druid.name}"
 
   vpc_security_group_ids = [
-    "${aws_security_group.adelaide-druid-access-tf.id}",
+    "${aws_security_group.druid-cluster-access-tf.id}",
     "${aws_security_group.druid-tf.id}",
     "${aws_security_group.all-internal-druid-cidr-tf.id}"
   ]
@@ -78,12 +78,12 @@ resource "aws_instance" "druid-data" {
   count         = "${var.druid_data_node_count}"
   ami           = "${data.aws_ami.centos.id}"
   instance_type = "${var.druid_default_instance_type}"
-  subnet_id     = "${aws_subnet.druid-automation.id}"
+  subnet_id     = "${aws_subnet.druid-subnet-automation.id}"
   key_name      = "${var.key_name}"
   iam_instance_profile = "${aws_iam_instance_profile.druid.name}"
 
   vpc_security_group_ids = [
-    "${aws_security_group.adelaide-druid-access-tf.id}",
+    "${aws_security_group.druid-cluster-access-tf.id}",
     "${aws_security_group.druid-tf.id}",
     "${aws_security_group.all-internal-druid-cidr-tf.id}"
   ]
@@ -106,12 +106,12 @@ resource "aws_instance" "zookeeper" {
   count         = "${var.zookeeper_count}"
   ami           = "${data.aws_ami.centos.id}"
   instance_type = "${var.druid_default_instance_type}"
-  subnet_id     = "${aws_subnet.druid-automation.id}"
+  subnet_id     = "${aws_subnet.druid-subnet-automation.id}"
   key_name      = "${var.key_name}"
   iam_instance_profile = "${aws_iam_instance_profile.druid.name}"
 
   vpc_security_group_ids = [
-    "${aws_security_group.adelaide-druid-access-tf.id}",
+    "${aws_security_group.druid-cluster-access-tf.id}",
     "${aws_security_group.druid-tf.id}",
     "${aws_security_group.all-internal-druid-cidr-tf.id}",
   ]
@@ -131,16 +131,16 @@ resource "aws_instance" "zookeeper" {
   )}"
 }
 
-resource "aws_instance" "postgres" {
-  count         = "${var.postgres_count}"
+resource "aws_instance" "metadata_db" {
+  count         = "${var.metadata_db_count}"
   ami           = "${data.aws_ami.centos.id}"
   instance_type = "${var.druid_default_instance_type}"
-  subnet_id     = "${aws_subnet.druid-automation.id}"
+  subnet_id     = "${aws_subnet.druid-subnet-automation.id}"
   key_name      = "${var.key_name}"
   iam_instance_profile = "${aws_iam_instance_profile.druid.name}"
 
   vpc_security_group_ids = [
-    "${aws_security_group.adelaide-druid-access-tf.id}",
+    "${aws_security_group.druid-cluster-access-tf.id}",
     "${aws_security_group.druid-tf.id}",
     "${aws_security_group.all-internal-druid-cidr-tf.id}",
   ]
@@ -154,8 +154,8 @@ resource "aws_instance" "postgres" {
     local.common_tags,
     local.metadata_db_tags,
     map(
-      "Name", "druid-postgres-${count.index}",
-      "Druid-Postgres-Stack", "${var.stack}"
+      "Name", "druid-metadata-db-${count.index}",
+      "Druid-Metadata-DB-Stack", "${var.stack}"
       )
   )}"
 }

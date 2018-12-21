@@ -1,4 +1,4 @@
-resource "aws_vpc" "druid-automation" {
+resource "aws_vpc" "druid-vpc-automation" {
   cidr_block = "${var.vpc_cidr_block}"
 
   tags {
@@ -6,8 +6,8 @@ resource "aws_vpc" "druid-automation" {
   }
 }
 
-resource "aws_subnet" "druid-automation" {
-  vpc_id     = "${aws_vpc.druid-automation.id}"
+resource "aws_subnet" "druid-subnet-automation" {
+  vpc_id     = "${aws_vpc.druid-vpc-automation.id}"
   cidr_block = "${var.subnet_cidr_block}"
 
   tags {
@@ -15,22 +15,23 @@ resource "aws_subnet" "druid-automation" {
   }
 }
 
-resource "aws_security_group" "adelaide-druid-access-tf" {
-  name   = "adelaide-druid-access-tf"
-  vpc_id = "${aws_vpc.druid-automation.id}"
+## for druid-cluster ssh enablemenet.
+resource "aws_security_group" "druid-cluster-access-tf" {
+  name   = "druid-cluster-access-tf"
+  vpc_id = "${aws_vpc.druid-vpc-automation.id}"
 
   ingress {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = ["172.20.0.0/22"]
+    cidr_blocks = [""] ## for-eg. "182.20.0.0/22"
   }
 
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"] ## for-eg. "0.0.0.0/0"
   }
 
   tags {
@@ -38,9 +39,10 @@ resource "aws_security_group" "adelaide-druid-access-tf" {
   }
 }
 
+## for druid self-cluster self reference
 resource "aws_security_group" "druid-tf" {
   name   = "druid-tf"
-  vpc_id = "${aws_vpc.druid-automation.id}"
+  vpc_id = "${aws_vpc.druid-vpc-automation.id}"
 
   ingress {
     from_port = 0
@@ -53,7 +55,7 @@ resource "aws_security_group" "druid-tf" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"] ## for-eg. "0.0.0.0/0"
   }
 
   tags {
@@ -61,22 +63,23 @@ resource "aws_security_group" "druid-tf" {
   }
 }
 
+## for druid-cluster interaction
 resource "aws_security_group" "all-internal-druid-cidr-tf" {
   name   = "all-internal-druid-cidr-tf"
-  vpc_id = "${aws_vpc.druid-automation.id}"
+  vpc_id = "${aws_vpc.druid-vpc-automation.id}"
 
   ingress {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = ["172.16.0.0/12", "10.0.0.0/8"]
+    cidr_blocks = [""] ## for-eg. "182.16.0.0/12", "20.0.0.0/8"
   }
 
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"] ## for-eg. "0.0.0.0/0"
   }
 
   tags {
