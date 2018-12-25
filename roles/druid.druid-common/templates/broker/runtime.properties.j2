@@ -1,0 +1,75 @@
+## Broker Node Configs ##
+druid.host={{ ansible_host  }}
+druid.port=8082
+#druid.tlsPort=8282
+druid.service=druid/broker
+
+## Druid Query Configuration Properties ##
+#druid.broker.balancer.type=random
+#druid.broker.select.tier=highestPriority
+#druid.broker.select.tier.custom.priorities=None
+
+## Druid Concurrent Requests Properties ##
+druid.server.http.numThreads=50
+druid.server.http.queueSize=50
+druid.server.http.maxIdleTime=PT5m
+druid.broker.http.numConnections=5
+druid.broker.http.readTimeout=PT5M
+#druid.broker.http.compressionCodec=gzip
+#druid.server.http.enableRequestLimit=false
+#druid.server.http.defaultQueryTimeout=300000
+#druid.server.http.maxRequestHeaderSize=8 * 1024
+#druid.server.http.maxQueryTimeout=Long.MAX_VALUE
+#druid.server.http.maxScatterGatherBytes=Long.MAX_VALUE
+
+## Druid Retry Policy Properties ##
+#druid.broker.retryPolicy.numTries=1
+
+## Druid Processing Properties ##
+druid.processing.buffer.sizeBytes=536870912
+#druid.processing.buffer.poolCacheMaxCount=Integer.MAX_VALUE
+#druid.processing.formatString=processing-%s
+#druid.processing.numMergeBuffers=max(2, druid.processing.numThreads / 4)
+#druid.processing.numThreads=Num cores -1
+#druid.processing.columnCache.sizeBytes=0
+#druid.processing.fifo=false
+#druid.processing.tmpDir=java.io.tmpdir
+
+## Druid Broker Query Configuration Properties ##
+druid.sql.enable=true
+#druid.sql.avatica.enable=true
+#druid.sql.avatica.maxConnections=50
+#druid.sql.avatica.maxRowsPerFrame=100,000
+#druid.sql.avatica.maxStatementsPerConnection=1
+#druid.sql.avatica.connectionIdleTimeout=PT5M
+#druid.sql.http.enable=true
+#druid.sql.planner.maxQueryCount=8
+#druid.sql.planner.maxSemiJoinRowsInMemory=100000
+#druid.sql.planner.maxTopNLimit=100000
+#druid.sql.planner.metadataRefreshPeriod=PT1M
+#druid.sql.planner.selectPageSize=1000
+#druid.sql.planner.useApproximateCountDistinct=true
+#druid.sql.planner.useApproximateTopN=true
+#druid.sql.planner.useFallback=false
+
+## Druid Search Query Config Properties ##
+#druid.query.search.maxSearchLimit=1000
+#druid.query.search.searchStrategy=useIndexes
+
+#druid.query.segmentMetadata.defaultHistory=P1W
+
+## Druid Broker Caching Properties ##
+druid.broker.cache.useCache=true
+druid.broker.cache.populateCache=true
+#druid.broker.cache.unCacheable=["groupBy", "select"]
+#druid.broker.cache.cacheBulkMergeLimit=Integer.MAX_VALUE
+
+## Druid Cache Type Properties ##
+druid.cache.type=caffeine
+druid.cache.expireAfter=14400000000
+druid.cache.evictOnClose=false
+druid.cache.sizeInBytes=6000000000
+druid.cache.cacheExecutorFactory=COMMON_FJP
+
+
+druid.monitoring.monitors={% if druid_package_type == 'apache' %}["org.apache.druid.server.metrics.QueryCountStatsMonitor", "org.apache.druid.java.util.metrics.JvmMonitor"]{% else %}["io.druid.server.metrics.QueryCountStatsMonitor", "io.druid.java.util.metrics.JvmMonitor"]{% endif %}

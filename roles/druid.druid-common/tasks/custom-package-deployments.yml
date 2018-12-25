@@ -1,0 +1,63 @@
+## Copy custom built[hadoop-2.8.3 based] hdfs-storage extension
+- name: Remove default hdfs-storage directory if exist
+  file:
+    mode: 0755
+    state: absent
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    path: "{{ extensions_dir }}/druid-hdfs-storage"
+
+- name: Copy hdfs-storage to tmp folder
+  copy:
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: "{{ druid_hdfs_storage_archive }}"
+    dest: "{{ druid_tmpdir }}/druid-hdfs-storage.tar.gz"
+
+- name: Unarchive hdfs-storage to extension folder
+  unarchive:
+    copy: no
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: "{{ druid_tmpdir }}/druid-hdfs-storage.tar.gz"
+    dest: "{{ extensions_dir }}"
+
+## Removing default hadoop-dependencies and placing custom built[hadoop-2.8.3 based] hadoop-dependencies.
+- name: Remove default hadoop-dependencies if exist
+  file:
+    mode: 0755
+    state: absent
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    path: "{{ installation_dir }}/hadoop-dependencies"
+
+- name: Copy custom hadoop-depenedcies to temp folder
+  copy:
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: "{{ druid_hadoop_dependencies_archive }}"
+    dest: "{{ druid_tmpdir }}/hadoop-dependencies.tar.gz"
+
+- name: Unarchive custom hadoop-depenedcies to druid folder
+  unarchive:
+    copy: no
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: "{{ druid_tmpdir }}/hadoop-dependencies.tar.gz"
+    dest: "{{ installation_dir }}"
+
+## Removing default indexing-hadoop jar and placing custom built[hadoop-2.8.3 based] jar.
+- name: Remove default indexing-hadoop jar if exist
+  file:
+    mode: 0755
+    state: absent
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    path: "{{ installation_dir }}/lib/{{ druid_indexing_hadoop_jar }}"
+
+- name: Copy custom indexing-hadoop jar
+  copy:
+    owner: "{{ druid_user }}"
+    group: "{{ druid_group }}"
+    src: "{{ druid_indexing_hadoop_jar_path }}"
+    dest: "{{ installation_dir }}/lib/"

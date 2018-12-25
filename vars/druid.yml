@@ -1,8 +1,19 @@
 #druid version for installation
 druid_version: 0.12.3
-druid_mirror: http://static.druid.io/artifacts/releases
-druid_package_name: druid-{{ druid_version }}
-druid_download_url: "{{ druid_mirror }}/{{ druid_package_name }}-bin.tar.gz"
+druid_package_type: <apache | io >
+druid_custom_package_deployments: true
+
+#io_druid packages
+io_druid_main_class: io.druid.cli.Main
+io_druid_package_name: druid-{{ druid_version }}
+io_druid_mirror: http://static.druid.io/artifacts/releases
+io_druid_download_url: "{{ io_druid_mirror }}/{{ io_druid_package_name }}-bin.tar.gz"
+
+#apache_druid packages
+apache_druid_main_class: org.apache.druid.cli.Main
+apache_druid_package_name: apache-druid-{{ druid_version }}
+apache_druid_mirror: http://www-eu.apache.org/dist/incubator/druid
+apache_druid_download_url: "{{ apache_druid_mirror }}/{{ druid_version }}/{{ apache_druid_package_name }}-bin.tar.gz"
 
 #zookeeper version for installation
 zookeeper_version: 3.4.12
@@ -39,7 +50,7 @@ zookeeper_connection_string: "{{ groups['cluster_druid_zookeeper'] | join(':{0},
 deep_storage_type: s3
 druid_s3_accessKey: <AWS_ACCESS_KEY>
 druid_s3_secretKey: <AWS_SECRET_KEY>
-druid_s3_bucketname: <BUCKET_NAME>
+druid_s3_bucketname: daas-experiment-druid
 druid_s3_baseKey: deepstorage
 deep_storage_location: "{{ druid_s3_bucketname }}/data"
 deep_storage_log_location: "{{ druid_s3_bucketname }}/logs"

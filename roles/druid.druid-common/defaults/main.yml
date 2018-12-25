@@ -22,3 +22,7 @@ druid_hdfs_storage_archive: "resources/druid-hdfs-storage-{{ druid_version }}.ta
 druid_hadoop_dependencies_archive: "resources/hadoop-dependencies-{{ druid_version }}.tar.gz"
 druid_indexing_hadoop_jar: "druid-indexing-hadoop-{{ druid_version }}.jar"
 druid_indexing_hadoop_jar_path: "resources/{{ druid_indexing_hadoop_jar }}"
+
+## added for supporting 0.13.0-incubating version too in the code.
+druid_download_url: "{{ apache_druid_download_url if druid_package_type == 'apache' else io_druid_download_url }}"
+druid_package_name: "{{ apache_druid_package_name if druid_package_type == 'apache' else io_druid_package_name }}"

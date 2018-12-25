@@ -17,7 +17,7 @@
     mode: 0664
     owner: "{{ druid_user }}"
     group: "{{ druid_group }}"
-    src: _common/common.runtime.properties
+    src: _common/common.runtime.properties.j2
     dest: "{{ conf_dir }}/druid/_common/common.runtime.properties"
 
 - name: Copy over common jets3t.properties
@@ -41,7 +41,7 @@
     mode: 0664
     owner: "{{ druid_user }}"
     group: "{{ druid_group }}"
-    src: "{{ item }}/runtime.properties"
+    src: "{{ item }}/runtime.properties.j2"
     dest: "{{ conf_dir }}/druid/{{ item }}/runtime.properties"
   with_items:
     - broker

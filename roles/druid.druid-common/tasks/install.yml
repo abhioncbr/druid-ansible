@@ -1,152 +1,91 @@
-- name: Download druid
-  # Always call it druid-{{ druid_version }}-bin.tar.gz no matter if it is the real dist file or a gitlab artifact (in zip)
-  # the unarchive module handles it nicely
-  get_url:
-    force: no
-    dest: "{{ package_temp_dir }}"
-    url: "{{ druid_download_url }}"
+]- name: Download druid
+     # Always call it druid-{{ druid_version }}-bin.tar.gz no matter if it is the real dist file or a gitlab artifact (in zip)
+     # the unarchive module handles it nicely
+     get_url:
+       force: no
+       dest: "{{ package_temp_dir }}"
+       url: "{{ druid_download_url }}"
 
-- name: Unarchive druid
-  unarchive:
-    copy: no
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    dest: "{{ druid_base_dir }}"
-    src: "{{ package_temp_dir }}"
+ - name: Unarchive druid
+   unarchive:
+     copy: no
+     owner: "{{ druid_user }}"
+     group: "{{ druid_group }}"
+     dest: "{{ druid_base_dir }}"
+     src: "{{ package_temp_dir }}"
 
-- name: Make sure druid is owned by druid_user
-  file:
-    mode: 0775
-    recurse: yes
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    dest: "{{ installation_dir }}"
+ - name: Make sure druid is owned by druid_user
+   file:
+     mode: 0775
+     recurse: yes
+     owner: "{{ druid_user }}"
+     group: "{{ druid_group }}"
+     dest: "{{ installation_dir }}"
 
-- name: ensure druid config directories exists
-  file:
-    mode: 0775
-    state: directory
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    path: "{{ conf_dir }}/druid/{{ item }}"
-  with_items:
-    - _common
-    - broker
-    - overlord
-    - historical
-    - middleManager
-    - coordinator
-    - coordinator_parts
+ - name: ensure druid config directories exists
+   file:
+     mode: 0775
+     state: directory
+     owner: "{{ druid_user }}"
+     group: "{{ druid_group }}"
+     path: "{{ conf_dir }}/druid/{{ item }}"
+   with_items:
+     - _common
+     - broker
+     - overlord
+     - historical
+     - middleManager
+     - coordinator
+     - coordinator_parts
 
 ## Adding graphite-emitter extension to Druid
-- name: Copy graphite emitter to tmp folder
-  copy:
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    src: "{{ graphite_emitter_archive }}"
-    dest: "{{ druid_tmpdir }}/graphite-emitter.tar.gz"
+ - name: Copy graphite emitter to tmp folder
+   copy:
+     owner: "{{ druid_user }}"
+     group: "{{ druid_group }}"
+     src: "{{ graphite_emitter_archive }}"
+     dest: "{{ druid_tmpdir }}/graphite-emitter.tar.gz"
 
-- name: Unarchive graphite emitter to extension folder
-  unarchive:
-    copy: no
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    src: "{{ druid_tmpdir }}/graphite-emitter.tar.gz"
-    dest: "{{ extensions_dir }}"
+ - name: Unarchive graphite emitter to extension folder
+   unarchive:
+     copy: no
+     owner: "{{ druid_user }}"
+     group: "{{ druid_group }}"
+     src: "{{ druid_tmpdir }}/graphite-emitter.tar.gz"
+     dest: "{{ extensions_dir }}"
 
-- name: Copy metrics whiteList file
-  copy:
-    mode: 0664
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    src: resources/whiteListMap.json
-    dest: "{{ conf_dir }}"
+ - name: Copy metrics whiteList file
+   copy:
+     mode: 0664
+     owner: "{{ druid_user }}"
+     group: "{{ druid_group }}"
+     src: resources/whiteListMap.json
+     dest: "{{ conf_dir }}"
 
 ## Adding druid-parquet extension to Druid
-- name: Copy druid parquet to tmp folder
-  copy:
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    src: "{{ druid_parquet_archive }}"
-    dest: "{{ druid_tmpdir }}/druid-parquet.tar.gz"
+ - name: Copy druid parquet to tmp folder
+   copy:
+     owner: "{{ druid_user }}"
+     group: "{{ druid_group }}"
+     src: "{{ druid_parquet_archive }}"
+     dest: "{{ druid_tmpdir }}/druid-parquet.tar.gz"
 
-- name: Unarchive druid parquet to extension folder
-  unarchive:
-    copy: no
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    src: "{{ druid_tmpdir }}/druid-parquet.tar.gz"
-    dest: "{{ extensions_dir }}"
+ - name: Unarchive druid parquet to extension folder
+   unarchive:
+     copy: no
+     owner: "{{ druid_user }}"
+     group: "{{ druid_group }}"
+     src: "{{ druid_tmpdir }}/druid-parquet.tar.gz"
+     dest: "{{ extensions_dir }}"
 
-## Copy custom built[hadoop-2.8.3 based] hdfs-storage extension
-- name: Remove default hdfs-storage directory if exist
-  file:
-    mode: 0755
-    state: absent
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    path: "{{ extensions_dir }}/druid-hdfs-storage"
+ - include: custom-package-deployments.yml
+   when: druid_custom_package_deployments
 
-- name: Copy hdfs-storage to tmp folder
-  copy:
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    src: "{{ druid_hdfs_storage_archive }}"
-    dest: "{{ druid_tmpdir }}/druid-hdfs-storage.tar.gz"
-
-- name: Unarchive hdfs-storage to extension folder
-  unarchive:
-    copy: no
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    src: "{{ druid_tmpdir }}/druid-hdfs-storage.tar.gz"
-    dest: "{{ extensions_dir }}"
-
-## Removing default hadoop-dependencies and placing custom built[hadoop-2.8.3 based] hadoop-dependencies.
-- name: Remove default hadoop-dependencies if exist
-  file:
-    mode: 0755
-    state: absent
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    path: "{{ installation_dir }}/hadoop-dependencies"
-
-- name: Copy custom hadoop-depenedcies to temp folder
-  copy:
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    src: "{{ druid_hadoop_dependencies_archive }}"
-    dest: "{{ druid_tmpdir }}/hadoop-dependencies.tar.gz"
-
-- name: Unarchive custom hadoop-depenedcies to druid folder
-  unarchive:
-    copy: no
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    src: "{{ druid_tmpdir }}/hadoop-dependencies.tar.gz"
-    dest: "{{ installation_dir }}"
-
-## Removing default indexing-hadoop jar and placing custom built[hadoop-2.8.3 based] jar.
-- name: Remove default indexing-hadoop jar if exist
-  file:
-    mode: 0755
-    state: absent
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    path: "{{ installation_dir }}/lib/{{ druid_indexing_hadoop_jar }}"
-
-- name: Copy custom indexing-hadoop jar
-  copy:
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    src: "{{ druid_indexing_hadoop_jar_path }}"
-    dest: "{{ installation_dir }}/lib/"
-
-- name: Create symlink to druid version dir
-  file:
-    mode: 0775
-    state: link
-    owner: "{{ druid_user }}"
-    group: "{{ druid_group }}"
-    src: "{{ installation_dir }}"
-    dest: "{{ druid_base_dir }}/druid"
+ - name: Create symlink to druid version dir
+   file:
+     mode: 0775
+     state: link
+     owner: "{{ druid_user }}"
+     group: "{{ druid_group }}"
+     src: "{{ installation_dir }}"
+     dest: "{{ druid_base_dir }}/druid"
