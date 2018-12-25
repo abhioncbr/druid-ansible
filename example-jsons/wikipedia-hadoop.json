@@ -1,0 +1,86 @@
+{
+  "type": "index_hadoop",
+  "hadoopDependencyCoordinates": ["org.apache.hadoop:hadoop-client:2.8.3"],
+  "spec": {
+    "ioConfig": {
+      "type": "hadoop",
+      "inputSpec": {
+        "type": "static",
+        "paths": "s3a://<BUCKET_NAME>/<FOLDER_NAME>/wikiticker-2015-09-12-sampled.json.gz"
+      }
+    },
+    "tuningConfig": {
+      "type": "hadoop",
+      "jobProperties": {
+        "fs.s3a.endpoint": "s3.ca-central-1.amazonaws.com",
+        "fs.s3.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+        "fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem",
+        "io.compression.codecs": "org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.BZip2Codec,org.apache.hadoop.io.compress.SnappyCodec"
+      }
+    },
+    "dataSchema": {
+      "dataSource": "wikipedia_hadoop",
+      "granularitySpec": {
+        "type": "uniform",
+        "segmentGranularity": "day",
+        "queryGranularity": "none",
+        "intervals": ["2015-09-12/2015-09-13"]
+      },
+      "parser": {
+        "type": "string",
+        "parseSpec": {
+          "format": "json",
+          "dimensionsSpec": {
+            "dimensions": [
+              "channel",
+              "cityName",
+              "comment",
+              "countryIsoCode",
+              "countryName",
+              "isAnonymous",
+              "isMinor",
+              "isNew",
+              "isRobot",
+              "isUnpatrolled",
+              "metroCode",
+              "namespace",
+              "page",
+              "regionIsoCode",
+              "regionName",
+              "user"
+            ]
+          },
+          "timestampSpec": {
+            "format": "auto",
+            "column": "time"
+          }
+        }
+      },
+      "metricsSpec": [{
+        "name": "count",
+        "type": "count"
+      },
+        {
+          "name": "added",
+          "type": "longSum",
+          "fieldName": "added"
+        },
+        {
+          "name": "deleted",
+          "type": "longSum",
+          "fieldName": "deleted"
+        },
+        {
+          "name": "delta",
+          "type": "longSum",
+          "fieldName": "delta"
+        },
+        {
+          "name": "user_unique",
+          "type": "hyperUnique",
+          "fieldName": "user"
+        }
+      ]
+    }
+  }
+}

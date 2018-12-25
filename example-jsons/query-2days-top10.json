@@ -1,0 +1,15 @@
+{
+  "queryType" : "topN",
+  "dataSource" : "wikipedia-2days-trial",
+  "intervals" : ["2015-09-12/2015-09-14"],
+  "granularity" : "day",
+  "dimension" : "page",
+  "metric" : "count",
+  "threshold" : 10,
+  "aggregations" : [
+    {
+      "type" : "count",
+      "name" : "count"
+    }
+  ]
+}

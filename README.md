@@ -1,4 +1,4 @@
-Druid Ansible
+Druid Ansible [outdated: needs update]
 ===============
 
 This project can setup a druid cluster on AWS

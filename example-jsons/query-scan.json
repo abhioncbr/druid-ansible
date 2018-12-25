@@ -1,0 +1,12 @@
+{
+  "queryType": "select",
+  "dataSource": "wikipedia",
+  "descending": "false",
+  "dimensions":[],
+  "metrics":[],
+  "granularity": "all",
+  "intervals": [
+    "2015-09-12/2015-09-13"
+  ],
+  "pagingSpec":{"pagingIdentifiers": {}, "threshold":5}
+}
