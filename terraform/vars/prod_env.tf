@@ -17,7 +17,7 @@ creator = "druid_creator"
 tech_team = "druid_tech_team"
 business_unit = "druid_business_unit"
 
-region = "druid-region"
+region = "ca-central-1"
 project = "druid-automation"
 
 ## vpc of druid-automation

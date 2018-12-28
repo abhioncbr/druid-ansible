@@ -113,17 +113,10 @@
   become: yes
   roles:
     - druid.broker
-
-## Druid Data server ##
-- hosts: druid-data
-  vars_files:
-    - vars/druid.yml
-  become: yes
-  roles:
-    - druid.historical
     - druid.middle-manager
 
-- hosts: cluster_druid_zookeeper
+## Druid Data server ##
+- hosts: cluster_druid_zookeeper:druid-data
   vars_files:
     - vars/druid.yml
   become: yes
